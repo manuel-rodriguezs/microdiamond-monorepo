@@ -1,4 +1,4 @@
-package org.acme.microdiamond.server.users;
+package org.microdiamond.server.users;
 
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;

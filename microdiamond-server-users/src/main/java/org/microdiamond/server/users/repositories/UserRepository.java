@@ -1,8 +1,8 @@
-package org.acme.microdiamond.server.users.repositories;
+package org.microdiamond.server.users.repositories;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
-import org.acme.microdiamond.server.users.entities.User;
-import org.acme.microdiamond.server.users.entities.UserStatus;
+import org.microdiamond.server.users.entities.User;
+import org.microdiamond.server.users.entities.UserStatus;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;

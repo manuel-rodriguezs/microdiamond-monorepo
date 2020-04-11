@@ -1,4 +1,4 @@
-package org.acme.microdiamond.server.auth;
+package org.microdiamond.server.auth;
 
 import io.quarkus.test.Mock;
 import org.eclipse.microprofile.rest.client.inject.RestClient;

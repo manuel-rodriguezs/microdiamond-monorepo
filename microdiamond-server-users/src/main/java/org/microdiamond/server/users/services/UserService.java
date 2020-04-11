@@ -1,6 +1,6 @@
-package org.acme.microdiamond.server.users.services;
+package org.microdiamond.server.users.services;
 
-import org.acme.microdiamond.server.users.repositories.UserRepository;
+import org.microdiamond.server.users.repositories.UserRepository;
 
 import javax.enterprise.context.ApplicationScoped;
 

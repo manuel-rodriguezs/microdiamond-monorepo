@@ -1,4 +1,4 @@
-package org.acme.microdiamond.server.users.entities;
+package org.microdiamond.server.users.entities;
 
 import lombok.Data;
 

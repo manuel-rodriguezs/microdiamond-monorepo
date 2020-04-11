@@ -1,4 +1,4 @@
-package org.acme.microdiamond.server.auth;
+package org.microdiamond.server.auth;
 
 import io.quarkus.test.junit.NativeImageTest;
 

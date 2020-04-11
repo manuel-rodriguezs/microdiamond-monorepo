@@ -1,4 +1,4 @@
-package org.acme.microdiamond.server.auth;
+package org.microdiamond.server.auth;
 
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 

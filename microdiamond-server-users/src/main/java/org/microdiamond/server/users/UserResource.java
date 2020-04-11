@@ -1,7 +1,6 @@
-package org.acme.microdiamond.server.users;
+package org.microdiamond.server.users;
 
-import org.acme.microdiamond.server.users.services.UserService;
-import org.jboss.resteasy.annotations.jaxrs.PathParam;
+import org.microdiamond.server.users.services.UserService;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
