@@ -1,0 +1,37 @@
+version: '3.1'
+
+services:
+  md-users:
+    build:
+      context: ../microdiamond-server-users
+      dockerfile: src/main/docker/Dockerfile.native
+    restart: always
+    depends_on:
+      - md-db
+    networks:
+      - microdiamond
+
+  md-auth:
+    build:
+      context: ../microdiamond-server-auth
+      dockerfile: src/main/docker/Dockerfile.native
+    restart: always
+    depends_on:
+      - md-db
+    networks:
+      - microdiamond
+
+  md-db:
+    build:
+      context: ./database
+      dockerfile: Dockerfile
+    image: postgres
+    restart: always
+    networks:
+      - microdiamond
+    environment:
+      POSTGRES_PASSWORD: example
+
+networks:
+  microdiamond:
+    driver: bridge
