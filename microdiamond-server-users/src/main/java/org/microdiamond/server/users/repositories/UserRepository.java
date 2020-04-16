@@ -1,6 +1,7 @@
 package org.microdiamond.server.users.repositories;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import io.quarkus.hibernate.orm.panache.runtime.JpaOperations;
 import org.microdiamond.server.users.entities.User;
 import org.microdiamond.server.users.entities.UserStatus;
 
@@ -29,5 +30,4 @@ public class UserRepository implements PanacheRepository<User> {
             return Optional.of(user);
         }
     }
-
 }
