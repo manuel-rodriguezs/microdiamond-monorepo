@@ -1,33 +1,39 @@
 package org.microdiamond.server.auth.services;
 
 import io.vertx.core.http.HttpServerRequest;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.joda.time.DateTime;
 import org.microdiamond.server.auth.beans.UserInfo;
+import org.microdiamond.server.auth.exceptions.LoginException;
 import org.microdiamond.server.auth.restclients.UsersService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
-import java.util.List;
 
 @ApplicationScoped
-public class LoginRequestService {
+public class LoginService {
 
-    private final String AUTHORIZATION_HEADER = "Authorization";
+    final String AUTHORIZATION_HEADER = "Authorization";
+
+    @ConfigProperty(name = "microdiamond.app.username")
+    String appUsername;
+
+    @ConfigProperty(name = "microdiamond.app.password")
+    String appPassword;
 
     @Inject
     @RestClient
     UsersService usersService;
 
-    public UserInfo login(HttpServerRequest request) {
+    public UserInfo login(HttpServerRequest request) throws LoginException {
         String encodedHeader = getEncodedAuthorizationHeader(request);
         String decodedHeaderString = decodeAuthorizationHeader(encodedHeader);
         String username = getUsernameFromDecodedAuthorizationHeader(decodedHeaderString);
         String password = getPasswordFromDecodedAuthorizationHeader(decodedHeaderString);
-
         return getUserInfo(username, password);
     }
 
@@ -53,15 +59,30 @@ public class LoginRequestService {
         return usernameAndPassword[1];
     }
 
-    private UserInfo getUserInfo(String username, String password) {
-        List<String> roles = new ArrayList<>();
-        roles.add("tester");
-        roles.add("subscriber");
-
+    private UserInfo getUserInfo(String username, String password) throws LoginException {
+        if (username.equals(appUsername))
+        {
+            validateAppPassword(password);
+            return getAppUserInfo();
+        }
         return UserInfo.builder().
                 username(username).
                 birthdate(new DateTime(1982, 5, 24, 0, 0).toDate()).
-                roles(roles).
+                roles(Arrays.asList("tester", "subscriber")).
+                build();
+    }
+
+    private void validateAppPassword(String password) throws LoginException {
+        if (!password.equals(appPassword))
+        {
+            throw new LoginException("Error login app user");
+        }
+    }
+
+    private UserInfo getAppUserInfo() {
+        return UserInfo.builder().
+                username(appUsername).
+                roles(UserInfo.getAppRoles()).
                 build();
     }
 }

@@ -4,7 +4,7 @@ import io.vertx.ext.web.RoutingContext;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.microdiamond.server.auth.beans.UserInfo;
 import org.microdiamond.server.auth.services.JWTService;
-import org.microdiamond.server.auth.services.LoginRequestService;
+import org.microdiamond.server.auth.services.LoginService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
@@ -27,14 +27,13 @@ public class AuthResource {
     JWTService service;
 
     @Inject
-    LoginRequestService loginRequestService;
+    LoginService loginService;
 
     @GET
     @Path("login")
     @Produces(MediaType.TEXT_PLAIN)
     public String login(@Context RoutingContext rc) throws Exception {
-        UserInfo userInfo = loginRequestService.login(rc.request());
-
+        UserInfo userInfo = loginService.login(rc.request());
         return service.generateTokenString(userInfo);
     }
 

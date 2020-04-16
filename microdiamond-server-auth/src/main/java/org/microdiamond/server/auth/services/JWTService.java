@@ -30,6 +30,9 @@ public class JWTService {
     @ConfigProperty(name = "jwt.expiration.seconds")
     long expirationSeconds;
 
+    @ConfigProperty(name = "jwt.expiration.appuser.seconds")
+    long appUserExpirationSeconds;
+
     public String generateTokenString(UserInfo userInfo) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         PrivateKey pk = getPrivateKey();
         return generateTokenString(pk, userInfo);
@@ -47,8 +50,9 @@ public class JWTService {
             claim(Claims.birthdate.name(), userInfo.getBirthdate().getTime() / 1000).
             claim(Claims.groups.name(), userInfo.getRoles());
         long currentTimeInSecs = currentTimeInSecs();
+        long expirationSecs = userInfo.isAppUser() ? appUserExpirationSeconds : expirationSeconds;
         claims.issuedAt(currentTimeInSecs);
-        claims.expiresAt(currentTimeInSecs + expirationSeconds);
+        claims.expiresAt(currentTimeInSecs + expirationSecs);
         return claims;
     }
 
