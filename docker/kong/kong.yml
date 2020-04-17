@@ -1,0 +1,18 @@
+_format_version: "1.1"
+
+services:
+    - name: md-auth
+      host: md-auth
+      url: http://md-auth:8080/
+      routes:
+      - name: routes-auth
+        paths:
+        - /auth
+
+    - name: md-users
+      host: md-users
+      url: http://md-users:8080/
+      routes:
+      - name: routes-users
+        paths:
+        - /users
