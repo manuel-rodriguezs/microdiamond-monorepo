@@ -4,8 +4,8 @@ services:
   md-users:
     build:
       context: ../microdiamond-server-users
-      #dockerfile: src/main/docker/Dockerfile.native
-      dockerfile: src/main/docker/Dockerfile.jvm
+      dockerfile: src/main/docker/Dockerfile.native
+      #dockerfile: src/main/docker/Dockerfile.jvm
     restart: always
     depends_on:
       - md-db
@@ -16,8 +16,8 @@ services:
   md-auth:
     build:
       context: ../microdiamond-server-auth
-      #dockerfile: src/main/docker/Dockerfile.native
-      dockerfile: src/main/docker/Dockerfile.jvm
+      dockerfile: src/main/docker/Dockerfile.native
+      #dockerfile: src/main/docker/Dockerfile.jvm
     restart: always
     depends_on:
       - md-api-gateway
@@ -35,18 +35,23 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_PASSWORD: example
+      POSTGRES_PASSWORD: justapassword
 
   md-api-gateway:
-    build:
-      context: ./kong
-      dockerfile: Dockerfile
+    image: bitnami/kong:latest
+    ports:
+      - 80:8000
+    environment:
+      - KONG_MIGRATE=yes
+      - KONG_PG_HOST=md-db
+      - KONG_PG_USER=postgres
+      - KONG_PG_PASSWORD=justapassword
+    restart: always
+    depends_on:
+      - md-db
+    restart: always
     networks:
       - microdiamond
-    ports:
-      - "80:8000/tcp"
-      - "8001:8001/tcp"
-    restart: always
 
 networks:
   microdiamond:

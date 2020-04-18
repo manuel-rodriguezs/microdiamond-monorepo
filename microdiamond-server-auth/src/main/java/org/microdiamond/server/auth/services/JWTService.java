@@ -7,7 +7,6 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.Claims;
 import org.microdiamond.server.commons.beans.UserInfo;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.IOException;
@@ -39,28 +38,15 @@ public class JWTService {
     @Inject
     LoginService loginService;
 
-    static JWTService instance;
-
-    @PostConstruct
-    public void postConstruct()
-    {
-        JWTService.instance = this;
-    }
-
     public String generateTokenString(UserInfo userInfo) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         PrivateKey pk = getPrivateKey();
         return generateTokenString(pk, userInfo);
     }
 
-    public static String generateAppTokenStringForHeader() throws NoSuchAlgorithmException, IOException, InvalidKeySpecException {
-        LoginService loginService = JWTService.instance.getLoginService();
+    public  String generateAppTokenStringForHeader() throws NoSuchAlgorithmException, IOException, InvalidKeySpecException {
         UserInfo appUserInfo = loginService.getAppUserInfo();
-        String token = JWTService.instance.generateTokenString(appUserInfo);
+        String token = generateTokenString(appUserInfo);
         return "Bearer " + token;
-    }
-
-    public LoginService getLoginService() {
-        return loginService;
     }
 
     private String generateTokenString(PrivateKey privateKey, UserInfo userInfo) {

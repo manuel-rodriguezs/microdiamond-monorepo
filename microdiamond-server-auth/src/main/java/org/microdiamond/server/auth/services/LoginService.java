@@ -4,6 +4,7 @@ import io.vertx.core.http.HttpServerRequest;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.microdiamond.server.auth.exceptions.LoginException;
+import org.microdiamond.server.auth.restclients.beanparams.UsersBasicAuthCredentials;
 import org.microdiamond.server.auth.restclients.UsersService;
 import org.microdiamond.server.commons.beans.UserAuthInfo;
 import org.microdiamond.server.commons.beans.UserInfo;
@@ -11,6 +12,9 @@ import org.microdiamond.server.commons.beans.UserInfo;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
 
 @ApplicationScoped
@@ -28,7 +32,10 @@ public class LoginService {
     @RestClient
     UsersService usersService;
 
-    public UserInfo login(HttpServerRequest request) throws LoginException {
+    @Inject
+    JWTService jwtService;
+
+    public UserInfo login(HttpServerRequest request) {
         String basicAuthCredentials = request.getHeader(AUTHORIZATION_HEADER);
         UserAuthInfo userAuthInfo = UserAuthInfo.of(basicAuthCredentials);
         return getUserInfo(userAuthInfo);
@@ -44,13 +51,27 @@ public class LoginService {
                 build();
     }
 
-    private UserInfo getUserInfo(UserAuthInfo userAuthInfo) throws LoginException, WebApplicationException {
-        if (userAuthInfo.getUsername().equals(appUsername))
-        {
-            validateAppPassword(userAuthInfo.getPassword());
-            return getAppUserInfo();
+    private UserInfo getUserInfo(UserAuthInfo userAuthInfo) throws WebApplicationException {
+        try {
+            if (userAuthInfo.getUsername().equals(appUsername))
+            {
+                validateAppPassword(userAuthInfo.getPassword());
+                return getAppUserInfo();
+            }
+            return getUserInfoFromUsersMicroservice(userAuthInfo);
+        } catch (NoSuchAlgorithmException | IOException | InvalidKeySpecException | LoginException e) {
+            throw new WebApplicationException(e);
         }
-        return usersService.getByBasicAuthCredentials(userAuthInfo.getBasicAuthCredentials());
+    }
+
+    private UserInfo getUserInfoFromUsersMicroservice(UserAuthInfo userAuthInfo) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException {
+        String authTokenHeader = jwtService.generateAppTokenStringForHeader();
+        String basicAuthCredentials = userAuthInfo.getBasicAuthCredentials();
+        UsersBasicAuthCredentials usersBasicAuthCredentials = UsersBasicAuthCredentials.builder().
+                authTokenHeader(authTokenHeader).
+                credentials(basicAuthCredentials).
+                build();
+        return usersService.getByBasicAuthCredentials(usersBasicAuthCredentials);
     }
 
     private void validateAppPassword(String password) throws LoginException {

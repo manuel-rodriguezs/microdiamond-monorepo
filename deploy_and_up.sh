@@ -1,6 +1,6 @@
 #!/bin/bash
-#./buildnatives.sh
-./buildjars.sh
+./buildnatives.sh
+#./buildjars.sh
 status=$?
 if test $status -eq 0
 then

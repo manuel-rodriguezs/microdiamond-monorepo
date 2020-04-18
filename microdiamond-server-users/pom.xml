@@ -31,8 +31,8 @@
   </dependencyManagement>
   <dependencies>
     <dependency>
-      <groupId>com.microdiamond.server</groupId>
-      <artifactId>microdiamond-server-commons</artifactId>
+      <groupId>org.microdiamond.server</groupId>
+      <artifactId>commons</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
@@ -136,6 +136,7 @@
       </build>
       <properties>
         <quarkus.package.type>native</quarkus.package.type>
+        <quarkus.native.additional-build-args>-H:IncludeResourceBundles=sun.util.resources.TimeZoneNames</quarkus.native.additional-build-args>
       </properties>
     </profile>
   </profiles>

@@ -2,7 +2,7 @@ package org.microdiamond.server.auth.restclients;
 
 import io.quarkus.test.Mock;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.microdiamond.server.auth.restclients.UsersService;
+import org.microdiamond.server.auth.restclients.beanparams.UsersBasicAuthCredentials;
 import org.microdiamond.server.commons.beans.UserInfo;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -21,7 +21,7 @@ public class MockUsersService implements UsersService {
     }
 
     @Override
-    public UserInfo getByBasicAuthCredentials(String credentials) {
+    public UserInfo getByBasicAuthCredentials(UsersBasicAuthCredentials usersBasicAuthCredentials) {
         return null;
     }
 }
