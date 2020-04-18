@@ -4,8 +4,8 @@ services:
   md-users:
     build:
       context: ../microdiamond-server-users
-      dockerfile: src/main/docker/Dockerfile.native
-      #dockerfile: src/main/docker/Dockerfile.jvm
+      #dockerfile: src/main/docker/Dockerfile.native
+      dockerfile: src/main/docker/Dockerfile.jvm
     restart: always
     depends_on:
       - md-db
@@ -16,9 +16,8 @@ services:
   md-auth:
     build:
       context: ../microdiamond-server-auth
-      dockerfile: src/main/docker/Dockerfile.native
-      #dockerfile: src/main/docker/Dockerfile.jvm
-    
+      #dockerfile: src/main/docker/Dockerfile.native
+      dockerfile: src/main/docker/Dockerfile.jvm
     restart: always
     depends_on:
       - md-api-gateway
@@ -33,6 +32,8 @@ services:
     restart: always
     networks:
       - microdiamond
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_PASSWORD: example
 
@@ -44,6 +45,7 @@ services:
       - microdiamond
     ports:
       - "80:8000/tcp"
+      - "8001:8001/tcp"
     restart: always
 
 networks:

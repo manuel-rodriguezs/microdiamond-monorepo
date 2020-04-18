@@ -5,9 +5,11 @@ import io.smallrye.jwt.build.JwtClaimsBuilder;
 import io.smallrye.jwt.build.JwtSignatureBuilder;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.Claims;
-import org.microdiamond.server.auth.beans.UserInfo;
+import org.microdiamond.server.commons.beans.UserInfo;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -17,8 +19,9 @@ import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
+import java.util.Date;
 
-@ApplicationScoped
+@Singleton
 public class JWTService {
 
     @ConfigProperty(name = "jwt.primaryKey.pem")
@@ -33,9 +36,31 @@ public class JWTService {
     @ConfigProperty(name = "jwt.expiration.appuser.seconds")
     long appUserExpirationSeconds;
 
+    @Inject
+    LoginService loginService;
+
+    static JWTService instance;
+
+    @PostConstruct
+    public void postConstruct()
+    {
+        JWTService.instance = this;
+    }
+
     public String generateTokenString(UserInfo userInfo) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         PrivateKey pk = getPrivateKey();
         return generateTokenString(pk, userInfo);
+    }
+
+    public static String generateAppTokenStringForHeader() throws NoSuchAlgorithmException, IOException, InvalidKeySpecException {
+        LoginService loginService = JWTService.instance.getLoginService();
+        UserInfo appUserInfo = loginService.getAppUserInfo();
+        String token = JWTService.instance.generateTokenString(appUserInfo);
+        return "Bearer " + token;
+    }
+
+    public LoginService getLoginService() {
+        return loginService;
     }
 
     private String generateTokenString(PrivateKey privateKey, UserInfo userInfo) {
@@ -47,9 +72,11 @@ public class JWTService {
         JwtClaimsBuilder claims = Jwt.claims().
             claim(Claims.iss.name(), jwtIss).
             claim(Claims.sub.name(), userInfo.getUsername()).
+            claim(Claims.full_name.name(), userInfo.getName()).
+            claim(Claims.family_name.name(), userInfo.getSurname()).
             claim(Claims.birthdate.name(), userInfo.getBirthdate().getTime() / 1000).
             claim(Claims.groups.name(), userInfo.getRoles());
-        long currentTimeInSecs = currentTimeInSecs();
+        long currentTimeInSecs = (new Date()).getTime() / 1000;
         long expirationSecs = userInfo.isAppUser() ? appUserExpirationSeconds : expirationSeconds;
         claims.issuedAt(currentTimeInSecs);
         claims.expiresAt(currentTimeInSecs + expirationSecs);
@@ -87,10 +114,5 @@ public class JWTService {
         pem = pem.replaceAll("\r\n", "");
         pem = pem.replaceAll("\n", "");
         return pem.trim();
-    }
-
-    private int currentTimeInSecs() {
-        long currentTimeMS = System.currentTimeMillis();
-        return (int) (currentTimeMS / 1000);
     }
 }
